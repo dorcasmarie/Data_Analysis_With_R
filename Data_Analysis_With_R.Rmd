@@ -6,6 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
+install.packages('knitr')
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -321,22 +322,6 @@ mtcars %>%
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ### Section III: Data Visualization
 Useful resources for using base plot in R\
 https://www.harding.edu/fmccown/r/\
@@ -512,6 +497,8 @@ panel.hist  <- function(x,...)
 
 ##### Create a fancy scatterplot matrix
 ```{r}
+library(RColorBrewer)
+
 pairs(iris[1:4],
       panel = panel.smooth,
       main = "Scatterplot Maxtris for Iris Data Using pairs Function",
@@ -522,7 +509,9 @@ pairs(iris[1:4],
 
 ##### Saving a plot
 ```{r}
-jpeg('C:/temp/My_Awesome_Plot.jpg')
+library(grDevices)
+getwd()
+jpeg("rplot.jpeg", width = 350, height = 350)
 # Run your fancy scatter plot matrix code here!
 dev.off()
 ```
@@ -558,20 +547,20 @@ Tukey's five-number summary: Min, Lower-hinge, Median, Upper-Hinge, Max (Not Lab
 **Hint:: These five numbers are the same as a boxplot**
 
 ```{r}
-fivenum(cars$mpg)
+fivenum(mtcars$mpg)
 ```
 
 ##### Alternative Descriptive Stats using the psych package
 vars, n, mean, sd, median, trimmed, mad, min, max, range, skew, kurtosis, se
 ```{r}
-#install.packages("psych")
+install.packages("psych")
 library(psych)
 describe(mtcars)  #vars, n, mean, sd, median, trimmed, mad, min, max, range, skew, kurtosis, se
 ```
 
 ##### Alternative Descriptive Stats using the pastecs pacakge
 ```{r}
-#install.packages("pastecs")
+install.packages("pastecs")
 library(pastecs)
 ?stat.desc()
 stat.desc(mtcars)
@@ -669,6 +658,8 @@ reg1
 ```{r}
 summary(reg1)
 anova(reg1)
+#aov(mpg ~cyl + disp + hp + wt + gear + carb, 
+#           data = mtcars)
 coef(reg1)
 confint(reg1) #Confindence intervals for coefficients
 resid(reg1)

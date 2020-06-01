@@ -1,0 +1,677 @@
+---
+title: "Data_Analysis_With_R"
+author: "Dorcas Washington"
+date: "June 2, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Workshop Summary and Contact Information
+
+**Summary:** R is a free and powerful programming language that is commonly used by researchers in both qualitative and quantitative disciplines. R provides a near comprehensive, and still expanding set of research and data analysis tools. This workshop explores the power of R for data analysis and visualization. The focus of this workshop will be hands-on exercises. No programming experience is required, but a basic comprehension of programming and statistics is benefiticial.
+
+**Contact:**   
+Email: AskData@uc.edu   
+
+Location: 240 Braunstein Hall (GMP Library)  
+
+Research & Data Services Website: https://libraries.uc.edu/research-teaching-support/research-data-services.html
+
+GitHub: dorcasmarie
+
+Twitter: dorcasmariew
+
+### Section I: Brief Introduction R 
+
+##### 1. R for basic calculation
+```{r}
+sin(pi*15)/100
+```
+
+
+##### 2. R Objects & Assignment
+R stores values and objects so they can be reused throughout an equation or script\
+Hint alt - is a shortcut for the < - 
+```{r}
+x <- 1+2
+y <- x +1
+y
+```
+
+#### 3. Understanding functions & Getting Help in R
+General recipe for functions:
+```{r eval=FALSE}
+function_name(argument #1 = value #1,
+              argument #2 = value #2)
+```
+
+Going back to our series task, we want to create a series of numbers from 1 to 100 by 2. Luckily there are many functions already available to use in base R (many many more available from packages, which we will discuss later).\
+\
+Given that we are just learning R, I will tell you that the function is called "seq()"\
+The first thing I do when using a new functions is to look at the documentation. You can use the ? to find R documentation.\
+
+**HINT: Scroll to the bottom of the help page for workable examples.**\
+```{r eval=FALSE}
+?seq()
+```
+
+**HINT: if you can't remember exactly what function you are looking for, Use Tab.**
+```{r eval=FALSE}
+me<tab>
+```
+
+Additionally, if you are not sure what the function is called try a fuzzy search.\
+```{r eval=FALSE}
+apropos("mea") 
+```
+
+
+##### 1. R for basic calculation
+### Section II: Exploring the Tidyverse!
+
+#### Install and Load the tidyverse package
+
+```{r}
+install.packages("tidyverse")
+install.packages("gapminder")
+library("tidyverse")
+library("gapminder")
+```
+
+#### Explore the Tidyverse 
+https://www.tidyverse.org/
+
+R packages only have to be installed once but loaded everytime.\
+Using require is a nice way to make sure every script has the packages needed which combines install.packages() & library()
+
+#### 1. Basic Data Exploration
+In this section we will use the gapminder data set
+https://www.gapminder.org/
+
+##### Lets assign this to gapminder
+```{r}
+gapminder <- gapminder
+```
+
+##### View our table
+```{r eval=FALSE}
+View(gapminder)
+```
+
+##### Lists the variables 
+```{r}
+names(gapminder)
+```
+
+##### Lets Examine the structure of the data
+```{r}
+str(gapminder)
+```
+
+This will become very useful when we visualize or analyze data, because we must make sure our variables are in the appropriate format!!
+
+##### Statistical summary of the data
+```{r}
+summary(gapminder)
+```
+
+#### 2. Exploring our data further
+**HINT: Understanding how data is indexed is crutial for R programming**
+
+##### Lets look at column 2 
+```{r}
+gapminder[,2]
+```
+
+gapminder[,2]
+
+##### Lets look at row 5
+```{r}
+gapminder[5,]
+```
+
+
+##### What value is in row 5 column 3?
+```{r}
+gapminder[5,3]
+```
+
+
+##### Based on this idea, we can make more complicated searches. Lets take the first ten observations and look at the variables:Country (1), Continent(2), Year (3), and population (5)
+```{r}
+gapminder[1:10,c(1:3, 5)]
+```
+
+##### What if we want to know the highest gpdPercap
+```{r}
+max(gapminder$gdpPercap)
+
+```
+
+##### Lets find the row number of the country with the highest gpdpercap
+```{r}
+which.max(gapminder$gdpPercap)
+```
+
+Then show me all columns for row that row
+
+```{r}
+gapminder[854,]
+```
+
+
+#### 2. The filter verb
+The filter verb is used to look at a subset of a data set.\
+Typically you combine filter with a pipe %>%
+
+```{r}
+gapminder %>% 
+  filter(country == "United States")
+```
+
+
+##### Multiple conditions
+```{r}
+gapminder %>% 
+  filter(year == 2007, country == "United States")
+```
+
+
+#### The arrange verb 
+Used for sorting data by ascending or descending condition\
+
+##### Ascending Order
+```{r}
+gapminder %>% 
+  arrange(gdpPercap)
+```
+
+
+##### Descending order
+```{r}
+gapminder %>% 
+  arrange(desc(gdpPercap))
+```
+
+
+##### Combining verbs
+```{r}
+gapminder %>% 
+  filter(year == 2007) %>% 
+  arrange(gdpPercap)
+```
+
+
+#### The mutate verb
+Change or Add variables to a data set
+
+##### Change a variable
+```{r}
+gapminder %>% 
+  mutate(pop = pop/1000000)
+```
+
+
+##### Add a new variable called gdp
+```{r}
+gapminder %>% 
+  mutate(gdp = gdpPercap * pop)
+```
+
+#### Combine all three verbs 
+```{r}
+gapminder %>% 
+  mutate(gdp = gdpPercap * pop) %>% 
+  filter(year == 2007) %>% 
+  arrange(desc(gdp))
+```
+
+#### The Summarize Verb 
+##### Summarize entire data set
+Returns the mean of all rows (one value)
+```{r}
+gapminder %>% 
+  summarize(meanLifeExp = mean(lifeExp))
+```
+
+##### What if we want to return the mean life exp just for 2007
+```{r}
+gapminder %>% 
+  filter(year == 2007) %>% 
+  summarize(meanLifeExp = mean(lifeExp))
+```
+
+
+##### Creating multiple Summaries
+```{r}
+gapminder %>% 
+  filter(year == 2007) %>% 
+  summarize(meanLifeExp = mean(lifeExp),
+            totalPop = sum(pop))
+```
+
+**HINT: What data type is pop? Use str(gapminder)**
+
+##### Convert pop to a numeric data type instead of an integer
+```{r}
+gapminder$pop <- as.numeric(gapminder$pop)
+```
+
+
+#### The group_by Verb 
+The group_by verb is useful for creating aggregated groups, especially when combined with the summarize function
+
+##### Summarize by each unique year
+```{r}
+gapminder %>% 
+  group_by(year) %>% 
+  summarize(meanLifeExp = mean(lifeExp),
+            totalPop = sum(pop))
+```
+
+
+##### Summarize data from 2007 by continent
+```{r}
+gapminder %>% 
+  filter(year == 2007) %>% 
+  group_by(continent) %>% 
+  summarize(meanLifeExp = mean(lifeExp),
+            totalPop = sum(pop))
+```
+
+##### What if we want to summarize by continent over all years?
+**HINT: Simply add an additional arguement to the group_by verb**
+```{r}
+gapminder %>% 
+  group_by(year, continent) %>% 
+  summarize(meanLifeExp = mean(lifeExp),
+            totalPop = sum(pop))
+```
+
+#### Section III Tasks
+Answer the following questions using the mtcars dataset
+```{r}
+mtcars <- mtcars
+```
+
+##### Task 3A. find the median mpg & wt for each group of cylinders  
+```{r}
+mtcars %>% 
+  group_by(cyl) %>% 
+  summarize(median_mpg = median(mpg),
+            median_wt = median(wt))
+```
+
+
+##### Task 3B. find the mean of hp and drat for each group of gear and cyl & 
+          #find the ratio between mean hp and mean drat
+          
+```{r}
+mtcars %>% 
+  group_by(cyl,gear) %>% 
+  summarize(mean_drat = mean(drat),
+            mean_hp = mean(hp),
+            hp_drat_ratio = mean_hp/mean_drat)
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+### Section III: Data Visualization
+Useful resources for using base plot in R\
+https://www.harding.edu/fmccown/r/\
+https://www.statmethods.net/graphs/index.html\
+
+#### 1. Default Plot
+```{r}
+plot(mtcars$mpg)
+```
+
+#### 2. Dotchart
+```{r}
+dotchart(mtcars$mpg)
+```
+
+Adding details and labels to a Simple Dotplot
+
+```{r}
+dotchart(mtcars$mpg,
+         labels=row.names(mtcars),
+         main="Gas Milage for Car Models", 
+         xlab="Miles Per Gallon")
+```
+
+#### 3. Histogram
+```{r}
+hist(mtcars$mpg)
+```
+
+##### Add color and explore bin sizes
+
+```{r}
+hist(mtcars$mpg, breaks=5, col="red")
+hist(mtcars$mpg, breaks=10, col="red")
+hist(mtcars$mpg, breaks=15, col="red")
+```
+
+#### 4. Kernel Density Plot
+First you need to save the density of the data you want to an R object\
+Then plot that object using plot()
+```{r}
+d <- density(mtcars$mpg) # returns the density data 
+plot(d) # plots the results
+```
+
+#### 5. Barplot
+```{r}
+barplot(mtcars$cyl)
+```
+HINT:: To fist create a variable called "count" to count the number of each group\
+Then use the barplot() function on the object counts
+```{r}
+counts <- table(mtcars$cyl)
+barplot(counts)
+```
+
+##### Add Chart Title and Axes
+
+```{r}
+barplot(counts, 
+        main="Car Distribution", 
+        xlab="Number of Gears")
+```
+
+##### Converting a Bar chart into a Stacked Bar
+```{r}
+counts <- table(mtcars$cyl, mtcars$gear)
+barplot(counts,
+        main="Car Distribution by Cylinders and Gears",
+        xlab="Number of Gears",
+        col = c("darkred","darkblue","orange"),
+        legend = rownames(counts))
+
+```
+
+#### 6. Box Plots
+```{r}
+boxplot(mtcars$mpg~mtcars$cyl)
+```
+
+##### Boxplot with labels
+```{r}
+boxplot(mpg~cyl,
+        data=mtcars,
+        main="Car Milage Data", 
+        xlab="Number of Cylinders",
+        ylab="Miles Per Gallon")
+```
+
+#### 7. Pie Charts
+
+```{r}
+slices <- table(mtcars$cyl)
+lbls <- c("Four", "Six", "Eight")
+pie(slices,
+    labels = lbls,
+    main="Pie Chart of mtcars Cylindars")
+```
+
+#### 8. Scatterplot
+##### Simple Scatterplot
+```{r}
+plot(mtcars$wt,mtcars$mpg)
+```
+
+##### Add labels
+```{r}
+plot(mtcars$wt, mtcars$mpg,
+     main="Scatterplot Example", 
+     xlab="Car Weight ",
+     ylab="Miles Per Gallon ",
+     pch=19)
+```
+
+#####Add linear regression line 
+Regression line is (y~x) 
+```{r}
+plot(mtcars$wt, mtcars$mpg,
+     main="Scatterplot Example", 
+     xlab="Car Weight ",
+     ylab="Miles Per Gallon ",
+     pch=19,
+     abline(lm(mtcars$mpg~mtcars$wt), col="red"))
+```
+
+#### 9. Line Graphs
+```{r}
+lines <- c(1:2,4,7,5,8,10,7)
+plot(lines)
+```
+
+##### Graph line using blue points overlayed by a line 
+```{r}
+plot(lines, type="o", col="blue")
+```
+
+##### Add a title
+```{r}
+plot(lines, type="o", col="blue",
+     main="My Line Graph")
+```
+
+
+#### 10. Get Inspired!!!  
+##### Use the Iris data set to make a scatterplot matrix
+
+```{r}
+data("iris")
+pairs(iris[1:4]) #only quantitative variables
+```
+
+
+##### Explore pastel theme in RColorBrewer
+```{r}
+require("RColorBrewer")
+display.brewer.pal(3,"Pastel1") #display colorpalette
+```
+
+
+##### Use the function below to modify the scatterplot matrix
+Put Histograms on the diagonal (from "pairs" Help)
+```{r}
+panel.hist  <- function(x,...)
+{
+  usr <- par("usr"); on.exit(par(usr))
+  par(usr = c(usr[1:2], 0,1.5) )
+  h <- hist(x, plot = FALSE)
+  breaks <- h$breaks; nB <- length(breaks)
+  y <- h$counts; y <- y/max(y)
+  rect(breaks[-nB], 0, breaks[-1], y, ...)
+}
+```
+
+##### Create a fancy scatterplot matrix
+```{r}
+pairs(iris[1:4],
+      panel = panel.smooth,
+      main = "Scatterplot Maxtris for Iris Data Using pairs Function",
+      diag.panel = panel.hist,
+      pch = 16,
+      col = brewer.pal(3, "Pastel1")[unclass(iris$Species)])
+```
+
+##### Saving a plot
+```{r}
+jpeg('C:/temp/My_Awesome_Plot.jpg')
+# Run your fancy scatter plot matrix code here!
+dev.off()
+```
+
+### Section IV: Data Analysis
+#### 1. Basic Stats with R
+Statistics are used to summerize data!\
+We use stats because it is difficult to memorize and decipher raw numbers\
+
+#####**Example 1: Average daily car traffic for a week **
+```{r}
+total <- sum(5,16,15,16,13,20,25)
+days <- 7
+total/days
+```
+
+##### Two basic types of Statistics
+**Descriptive Stats:** Uses data to describe the characteristics of a group
+**Inferential Stats:** Uses the data to make predictions or draw conclusions
+
+#### 2. Calculating descriptive statistics 
+One variable
+```{r}
+summary(mtcars$mpg)
+```
+
+Entire Data set
+```{r}
+summary(mtcars)
+```
+
+Tukey's five-number summary: Min, Lower-hinge, Median, Upper-Hinge, Max (Not Labeled)
+**Hint:: These five numbers are the same as a boxplot**
+
+```{r}
+fivenum(cars$mpg)
+```
+
+##### Alternative Descriptive Stats using the psych package
+vars, n, mean, sd, median, trimmed, mad, min, max, range, skew, kurtosis, se
+```{r}
+#install.packages("psych")
+library(psych)
+describe(mtcars)  #vars, n, mean, sd, median, trimmed, mad, min, max, range, skew, kurtosis, se
+```
+
+##### Alternative Descriptive Stats using the pastecs pacakge
+```{r}
+#install.packages("pastecs")
+library(pastecs)
+?stat.desc()
+stat.desc(mtcars)
+```
+
+#### 3. Analyzing data by groups
+For this section we will use the iris dataset
+```{r}
+data(iris)
+View(iris)
+mean(iris$Petal.Width) #mean of all observation's petal.width
+```
+
+##### Split the data file and repeat analysis using "aggregate"
+Allowing for the comparison of means by group
+```{r}
+aggregate(iris$Petal.Width ~ iris$Species, FUN = mean) # ~ means a function of...
+means <- aggregate(iris$Petal.Width ~ iris$Species, FUN = mean)
+plot(means)
+```
+**Hint:: There is significant difference between species **
+
+##### Conducting multiple calculations at once
+**Hint: The results do not keep the column headers so you need to remember the order you wrote them**
+```{r}
+aggregate(cbind(iris$Petal.Width, iris$Petal.Length)~ iris$Species, FUN = mean)
+```
+
+#### 4. Calculating Correlations
+
+##### Load the mtcars dataset
+```{r}
+mtcars <- mtcars
+```
+
+##### Create a correlation matrix
+```{r}
+cor(mtcars)
+```
+
+##### Simplify the matrix to increase readability 
+We can use the round() function to wrap the cor() function
+```{r}
+round(cor(mtcars), 2)
+```
+
+##### Correlate One pair of variables at a time
+Derives r, hypothesis test, and CI\
+Pearson's product-moment correlation\
+```{r}
+cor.test(mtcars$mpg, mtcars$wt)
+```
+
+##### Graphical Check of bivariate regression
+```{r}
+hist(mtcars$mpg)
+hist(mtcars$wt)
+plot(mtcars$wt, mtcars$mpg, abline(lm(mtcars$mpg~mtcars$wt)))
+```
+
+
+#### 5. Creating a Linear regression model
+**Correlation:** is the strength of the association
+**Regression:** is a function that can be used to predict values of another variable
+
+##### Create a LM for miles per gallon & weight from mtcars
+```{r}
+reg1 <- lm(mpg~wt, data = mtcars)
+reg1
+```
+##### Generate a summary from our LM
+```{r}
+summary(reg1)
+```
+
+The slope being statsitcally significant means that wt is a good predictor of mpg\
+The variable weight can accounts for 0.75 or 75% of the variation in mpg\
+
+#### 6. Calculate Multiple Regression
+
+**Hint: Saving models as an R object allows for the extraction of additional information from model**
+
+##### Use Six Predictors to model mpg
+```{r}
+reg1 <- lm(mpg ~cyl + disp + hp + wt + gear + carb, 
+           data = mtcars)
+```
+
+##### Extract simple coefficents 
+```{r}
+reg1
+```
+##### Extract model details
+
+```{r}
+summary(reg1)
+anova(reg1)
+coef(reg1)
+confint(reg1) #Confindence intervals for coefficients
+resid(reg1)
+hist(residuals(reg1)) #histogram of the residuals
+```
+

@@ -664,5 +664,6 @@ coef(reg1)
 confint(reg1) #Confindence intervals for coefficients
 resid(reg1)
 hist(residuals(reg1)) #histogram of the residuals
-```
 
+shapiro.test(reg1$residuals) # assess normality of residuals 
+```

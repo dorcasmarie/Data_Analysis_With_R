@@ -1,0 +1,61 @@
+---
+title: "cor_and_plot"
+author: "Dorcas Washington"
+date: "6/3/2020"
+output: html_document
+---
+
+# Correlation Plots
+
+In the Data Analysis With R workshop I waws asked to dig into correlation plots. I'm still not sure if you can visualization correlation matrices with just R base (e.g. without loading any other packages) but I do know of some easy (3-5 short lines of code) you can run to get correlation visualizations.
+
+In the first step below we are running the setup chunk. 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Using the 'psych' package 
+
+```{r}
+## Load data
+install.packages('psych')
+mtcars <- mtcars
+
+#subset data to variables of interest (I just chose 5 variables)
+mydata <- mtcars[, c('mpg', 'cyl', 'disp', 'hp', 'carb')]
+library(psych)
+pairs.panels(mydata)
+
+```
+
+If you'd like to see the correlation between all the data the code below does that,
+
+```{r}
+#you can look at all the variables but it looks a crowed and messy in my opinion and might be hard to interpret even for exploratory analysis 
+pairs.panels(mtcars)
+
+```
+
+
+## Using 'corrplot' and 'RColorBrewer' packages
+
+
+```{r}
+install.packages(c('corrplot', 'RColorBrewer'))
+library(corrplot)
+library(RColorBrewer)
+corrplot.mixed(cor(mtcars), order="hclust", tl.col="black", diag = "l")
+
+#changing the the lower diagonal text color to black so you can read it
+corrplot.mixed(cor(mtcars), order="hclust", tl.col="black", diag = "l", lower.col = "black")
+
+#notice how it's still hard to read with all the variables in the matrix
+
+
+# using less variables it's easier to see so there's trade offs
+mydata <- mtcars[, c('mpg', 'cyl', 'disp', 'hp', 'carb')]
+
+corrplot.mixed(cor(mydata), order="hclust", tl.col="black", diag = "l", lower.col = "black")
+
+```
+

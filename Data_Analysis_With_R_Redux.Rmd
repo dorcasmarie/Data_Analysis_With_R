@@ -1,0 +1,316 @@
+---
+title: "Data_Analysis_With_R"
+author: "Dorcas Washington"
+date: "November 18, 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+install.packages('knitr')
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Workshop Summary and Contact Information
+
+**Summary:** R is a free and powerful programming language that is commonly used by researchers in both qualitative and quantitative disciplines. R provides a near comprehensive, and still expanding set of research and data analysis tools. This workshop explores the power of R for data analysis and visualization. The focus of this workshop will be hands-on exercises. No programming experience is required, but a basic comprehension of programming and statistics is beneficial.
+
+**Contact:**   
+Email: AskData@uc.edu   
+
+Location: 240 Braunstein Hall (GMP Library)  
+
+Research & Data Services Website: https://libraries.uc.edu/research-teaching-support/research-data-services.html
+
+GitHub: dorcasmarie
+
+Twitter: dorcasmariew
+
+### Section I: Brief Introduction R 
+
+##### 1. R for basic calculation
+```{r}
+sin(pi*15)/100
+```
+
+
+##### 2. R Objects & Assignment
+R stores values and objects so they can be reused throughout an equation or script\
+Hint alt - is a shortcut for the < - 
+```{r}
+x <- 1+2
+y <- x +1
+y
+```
+
+#### 3. Understanding functions & Getting Help in R
+General recipe for functions:
+```{r eval=FALSE}
+function_name(argument #1 = value #1,
+              argument #2 = value #2)
+```
+
+Going back to our series task, we want to create a series of numbers from 1 to 100 by 2. Luckily there are many functions already available to use in base R (many many more available from packages, which we will discuss later).\
+\
+Given that we are just learning R, I will tell you that the function is called "seq()"\
+The first thing I do when using a new functions is to look at the documentation. You can use the ? to find R documentation.\
+
+**HINT: Scroll to the bottom of the help page for workable examples.**\
+```{r eval=FALSE}
+?seq()
+```
+
+**HINT: if you can't remember exactly what function you are looking for, Use Tab.**
+```{r eval=FALSE}
+me<tab>
+```
+
+Additionally, if you are not sure what the function is called try a fuzzy search.\
+```{r eval=FALSE}
+apropos("mea") 
+```
+
+
+##### 1. R for basic calculation
+### Section II: Data Analysis
+
+
+#### Install and Load the tidyverse package
+
+```{r}
+install.packages("tidyverse")
+install.packages("gapminder")
+library("tidyverse")
+library("gapminder")
+```
+
+
+#### 1. Basic Stats with R
+Statistics are used to summarize data!\
+We use stats because it is difficult to memorize and decipher raw numbers\
+
+#####**Example 1: Average daily car traffic for a week **
+```{r}
+total <- sum(5,16,15,16,13,20,25)
+days <- 7
+total/days
+```
+
+##### Two basic types of Statistics
+**Descriptive Stats:** Uses data to describe the characteristics of a group
+**Inferential Stats:** Uses the data to make predictions or draw conclusions
+
+#### 2. Calculating descriptive statistics 
+One variable
+```{r}
+summary(mtcars$mpg)
+```
+
+Entire Data set
+```{r}
+summary(mtcars)
+```
+
+Tukey's five-number summary: Min, Lower-hinge, Median, Upper-Hinge, Max (Not Labeled)
+**Hint:: These five numbers are the same as a boxplot**
+
+```{r}
+fivenum(mtcars$mpg)
+```
+
+##### Alternative Descriptive Stats using the psych package
+vars, n, mean, sd, median, trimmed, mad, min, max, range, skew, kurtosis, se
+```{r}
+install.packages("psych")
+library(psych)
+describe(mtcars)  #vars, n, mean, sd, median, trimmed, mad, min, max, range, skew, kurtosis, se
+```
+
+##### Alternative Descriptive Stats using the pastecs pacakge
+```{r}
+install.packages("pastecs")
+library(pastecs)
+?stat.desc()
+stat.desc(mtcars)
+```
+
+#### 3. Analyzing data by groups
+For this section we will use the iris dataset
+```{r}
+data(iris)
+View(iris)
+mean(iris$Petal.Width) #mean of all observation's petal.width
+```
+
+##### Split the data file and repeat analysis using "aggregate"
+Allowing for the comparison of means by group
+```{r}
+aggregate(iris$Petal.Width ~ iris$Species, FUN = mean) # ~ means a function of...
+means <- aggregate(iris$Petal.Width ~ iris$Species, FUN = mean)
+plot(means)
+```
+**Hint:: There is significant difference between species **
+
+##### Conducting multiple calculations at once
+**Hint: The results do not keep the column headers so you need to remember the order you wrote them**
+```{r}
+aggregate(cbind(iris$Petal.Width, iris$Petal.Length)~ iris$Species, FUN = mean)
+```
+
+#### 4. Calculating Correlations
+
+##### Load the mtcars dataset
+```{r}
+mtcars <- mtcars
+```
+
+##### Create a correlation matrix
+```{r}
+cor(mtcars)
+```
+
+##### Simplify the matrix to increase readability 
+We can use the round() function to wrap the cor() function
+```{r}
+round(cor(mtcars), 2)
+```
+
+##### Correlate One pair of variables at a time
+Derives r, hypothesis test, and CI\
+Pearson's product-moment correlation\
+```{r}
+cor.test(mtcars$mpg, mtcars$wt)
+```
+
+##### Graphical Check of bivariate regression
+```{r}
+hist(mtcars$mpg)
+hist(mtcars$wt)
+plot(mtcars$wt, mtcars$mpg, abline(lm(mtcars$mpg~mtcars$wt)))
+```
+
+
+#### 5. Creating a Linear regression model
+**Correlation:** is the strength of the association
+**Regression:** is a function that can be used to predict values of another variable
+
+##### Create a LM for miles per gallon & weight from mtcars
+```{r}
+reg1 <- lm(mpg~wt, data = mtcars)
+reg1
+```
+##### Generate a summary from our LM
+```{r}
+summary(reg1)
+```
+
+The slope being statistically significant means that wt is a good predictor of mpg\
+The variable weight can accounts for 0.75 or 75% of the variation in mpg\
+
+#### 6. Calculate Multiple Regression
+
+**Hint: Saving models as an R object allows for the extraction of additional information from model**
+
+##### Use Six Predictors to model mpg
+```{r}
+reg1 <- lm(mpg ~cyl + disp + hp + wt + gear + carb, 
+           data = mtcars)
+```
+
+##### Extract simple coefficents 
+```{r}
+reg1
+```
+##### Extract model details
+
+```{r}
+summary(reg1)
+anova(reg1)
+aov(mpg ~cyl + disp + hp + wt + gear + carb, 
+          data = mtcars)
+coef(reg1)
+confint(reg1) #Confidence intervals for coefficients
+resid(reg1)
+hist(residuals(reg1)) #histogram of the residuals
+
+shapiro.test(reg1$residuals) # assess normality of residuals 
+```
+
+##### Logistic Regression Model 
+Problem: 
+A researcher is interested in how variables, such as GRE (Graduate Record Exam scores), GPA (grade point average) and prestige of the undergraduate institution, effect admission into graduate school. The response variable, admit/don’t admit, is a binary variable.
+
+
+```{r}
+
+grad <- read.csv("https://stats.idre.ucla.edu/stat/data/binary.csv")
+head(grad) #view first 6 rows
+
+```
+This dataset has a binary response (outcome, dependent) variable called admit. There are three predictor variables: gre, gpa and rank. We will treat the variables gre and gpa as continuous. The variable rank takes on the values 1 through 4. Institutions with a rank of 1 have the highest prestige, while those with a rank of 4 have the lowest. We can get basic descriptive for the entire data set by using summary. To get the standard deviations, we use sapply to apply the sd function to each variable in the dataset.
+
+```{r}
+summary(grad)
+sapply(grad, sd) #this doesn't work if rank is a factor
+## two-way contingency table of categorical outcome and predictors we want
+## to make sure there are not 0 cells
+xtabs(~admit + rank, data = grad)
+grad$rank <- factor(grad$rank)
+logit_model <- glm(admit ~ gre + gpa + rank, data = grad, family = "binomial")
+summary(logit_model)
+
+```
+Notice that gpa and gre are really significant. Also notice that all three rank terms are significant as well.
+
+Conclude: 
+For every one unit change in gre, the log odds of admission (compared to non-admission) increases by 0.002264. For every one unit change in GPA, the log odds of admission (compared to non-admission) increases by 0.804038.
+
+Having attended an undergraduate institution of rank = 2, compared to an institution rank 1, changes the log odds by -0.675443. Similarly, attending an undergrad institution of rank 3, compared to an institution of rank 1, changes the log odds by -1.340204. And attending an undergrad institution of rank 4 compared to rank 1 changes the log odds of admission by -1.551464.
+
+```{r}
+## CIs using profiled log-likelihood
+
+confint(logit_model)
+
+```
+Notice how zero is not contained in any interval.
+
+
+```{r}
+## CIs using standard errors
+confint.default(logit_model)
+```
+
+
+We can test for an overall effect of rank using the wald.test function of the aod library. The order in which the coefficients are given in the table of coefficients is the same as the order of the terms in the model. This is important because the wald.test function refers to the coefficients by their order in the model. We use the wald.test function. b supplies the coefficients, while Sigma supplies the variance covariance matrix of the error terms, finally Terms tells R which terms in the model are to be tested, in this case, terms 4, 5, and 6, are the three terms for the levels of rank.
+
+```{r}
+install.packages("aod")
+require(aod)
+wald.test(b = coef(logit_model), Sigma = vcov(logit_model), Terms = 4:6)
+
+```
+
+The chi-squared test statistic of 20.9, with three degrees of freedom is associated with a p-value of 0.00011 indicating that the overall effect of rank is statistically significant.
+
+
+We can also test additional hypotheses about the differences in the coefficients for the different levels of rank. Below we test that the coefficient for rank=2 is equal to the coefficient for rank=3. The first line of code below creates a vector l that defines the test we want to perform. In this case, we want to test the difference (subtraction) of the terms for rank=2 and rank=3 (i.e., the 4th and 5th terms in the model). To contrast these two terms, we multiply one of them by 1, and the other by -1. The other terms in the model are not involved in the test, so they are multiplied by 0. The second line of code below uses L=l to tell R that we wish to base the test on the vector l (rather than using the Terms option as we did above).
+```{r}
+l <- cbind(0, 0, 0, 1, -1, 0)
+wald.test(b = coef(logit_model), Sigma = vcov(logit_model), L = l)
+```
+
+The chi-squared test statistic of 5.5 with 1 degree of freedom is associated with a p-value of 0.019, indicating that the difference between the coefficient for rank=2 and the coefficient for rank=3 is statistically significant.
+
+You can also exponentiate the coefficients and interpret them as odds-ratios. R will do this computation for you. To get the exponentiated coefficients, you tell R that you want to exponentiate (exp), and that the object you want to exponentiate is called coefficients and it is part of mylogit (coef(mylogit)). We can use the same logic to get odds ratios and their confidence intervals, by exponentiating the confidence intervals from before. To put it all in one table, we use cbind to bind the coefficients and confidence intervals column-wise.
+
+```{r}
+exp(coef(logit_model))
+## odds ratios and 95% CI
+exp(cbind(OR = coef(logit_model), confint(logit_model)))
+
+```
+
+
+Now we can say that for a one unit increase in gpa, the odds of being admitted to graduate school (versus not being admitted) increase by a factor of 2.23.
+
+The logistic regression example is from [UCLA](https://stats.idre.ucla.edu/r/dae/logit-regression/)

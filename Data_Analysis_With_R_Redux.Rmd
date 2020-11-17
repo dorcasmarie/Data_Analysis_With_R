@@ -274,6 +274,10 @@ confint(logit_model)
 ```
 Notice how zero is not contained in any interval.
 
+Here we are using the confidence interval to assess the estimate of the odds ratio.
+
+For example, with a 95% confidence level, you can be 95% confident that the confidence interval contains the value of the odds ratio for the population.
+
 
 ```{r}
 ## CIs using standard errors
